@@ -423,7 +423,7 @@ func (b *localBackend) RenameStack(ctx context.Context, stack backend.Stack,
 
 	// To remove the old stack, just make a backup of the file and don't write out anything new.
 	file := b.stackPath(stackName)
-	backupTarget(b.bucket, file)
+	backupTarget(b.bucket, file, false)
 
 	// And rename the histoy folder as well.
 	if err = b.renameHistory(stackName, newName); err != nil {
@@ -860,4 +860,33 @@ func (b *localBackend) UpdateStackTags(ctx context.Context,
 
 	// The local backend does not currently persist tags.
 	return errors.New("stack tags not supported in --local mode")
+}
+
+func (b *localBackend) CancelCurrentUpdate(ctx context.Context, stackRef backend.StackReference) error {
+	// Try to delete ALL the lock files
+	allFiles, err := listBucket(b.bucket, stackLockDir(stackRef.Name()))
+	if err != nil {
+		// Don't error if it just wasn't found
+		if gcerrors.Code(err) == gcerrors.NotFound {
+			return nil
+		}
+		return err
+	}
+
+	for _, file := range allFiles {
+		if file.IsDir {
+			continue
+		}
+
+		err := b.bucket.Delete(ctx, file.Key)
+		if err != nil {
+			// Race condition, don't error if the file was delete between us calling list and now
+			if gcerrors.Code(err) == gcerrors.NotFound {
+				return nil
+			}
+			return err
+		}
+	}
+
+	return nil
 }
