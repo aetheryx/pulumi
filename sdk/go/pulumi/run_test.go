@@ -861,6 +861,8 @@ func TestWaitOrphanedDeprecatedOutput(t *testing.T) {
 }
 
 func TestExportResource(t *testing.T) {
+	t.Parallel()
+
 	mocks := &testMonitor{
 		NewResourceF: func(args MockResourceArgs) (string, resource.PropertyMap, error) {
 			return "someID", resource.PropertyMap{"foo": resource.NewStringProperty("qux")}, nil
@@ -938,6 +940,7 @@ type testResource4 struct {
 }
 
 func TestResourceInput(t *testing.T) {
+	t.Parallel()
 	RegisterOutputType(testResource2Output{})
 
 	mocks := &testMonitor{
