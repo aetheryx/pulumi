@@ -201,7 +201,9 @@ func convertStepEventMetadata(md engine.StepEventMetadata, showSecrets bool) api
 //
 // IMPORTANT: Any secret values are encrypted using the blinding encrypter. So any secret data
 // in the resource state will be lost and unrecoverable.
-func convertStepEventStateMetadata(md *engine.StepEventStateMetadata, showSecrets bool) *apitype.StepEventStateMetadata {
+func convertStepEventStateMetadata(md *engine.StepEventStateMetadata,
+	showSecrets bool) *apitype.StepEventStateMetadata {
+
 	if md == nil {
 		return nil
 	}
