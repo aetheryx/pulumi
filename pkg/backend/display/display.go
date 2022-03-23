@@ -70,7 +70,7 @@ func ShowEvents(
 }
 
 func logJSONEvent(encoder *json.Encoder, event engine.Event, opts Options, seq int) error {
-	apiEvent, err := ConvertEngineEvent(event, true)
+	apiEvent, err := ConvertEngineEvent(event, true /* showSecrets */)
 	if err != nil {
 		return err
 	}
